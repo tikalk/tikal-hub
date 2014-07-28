@@ -2,6 +2,10 @@ package com.tikalk.tikalhub;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -16,8 +20,16 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
+
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
 import com.tikalk.tikalhub.R;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -32,58 +44,119 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends PreferenceActivity {
-    /**
-     * Determines whether to always show the simplified settings UI, where
-     * settings are presented in a single list. When false, settings are shown
-     * as a master/detail two-pane view on tablets. When true, a single pane is
-     * shown on tablets.
-     */
-    private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
+    UiLifecycleHelper uiHelper;
+    private boolean isResumed;
+    private Preference fbLoginPref;
+    private Session.StatusCallback statusCallback;
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        if (!onIsMultiPane()) {
-            setupSimplePreferencesScreen();
+//        // Add code to print out the key hash
+//        try {
+//            PackageInfo info = getPackageManager().getPackageInfo(
+//                    "com.tikalk.tikalhub",
+//                    PackageManager.GET_SIGNATURES);
+//            for (Signature signature : info.signatures) {
+//                MessageDigest md = MessageDigest.getInstance("SHA");
+//                md.update(signature.toByteArray());
+//                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+//            }
+//        } catch (PackageManager.NameNotFoundException e) {
+//
+//        } catch (NoSuchAlgorithmException e) {
+//
+//        }
+
+        statusCallback = new Session.StatusCallback() {
+            @Override
+            public void call(Session session,
+                             SessionState state, Exception exception) {
+                onSessionStateChange(session, state, exception);
+            }
+        };
+        uiHelper = new UiLifecycleHelper(this, statusCallback);
+
+        uiHelper.onCreate(savedInstanceState);
+
+        addPreferencesFromResource(R.xml.pref_accounts);
+        fbLoginPref = findPreference("facebook_login");
+        fbLoginPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                toggleFBLogin();
+                return true;
+            }
+        });
+
+    }
+
+    private void toggleFBLogin() {
+
+        Session session = Session.getActiveSession();
+        if (session.isOpened()) {
+            session.closeAndClearTokenInformation();
+        } else {
+            Session.openActiveSession(this, true, statusCallback);
         }
+    }
+
+    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+        if(!isResumed)
+            return;
+
+        updateFBLoginPreference(session);
+    }
+
+    private void updateFBLoginPreference(Session session) {
+
+        if (session.isOpened()) {
+            fbLoginPref.setSummary("is logged in");
+        } else {
+            fbLoginPref.setSummary("not logged in");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        uiHelper.onResume();
+        isResumed = true;
+
+        Session session = Session.getActiveSession();
+        updateFBLoginPreference(session);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        uiHelper.onPause();
+        isResumed = false;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        uiHelper.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        uiHelper.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        uiHelper.onSaveInstanceState(outState);
     }
 
     @Override
     protected boolean isValidFragment(String fragmentName) {
         return true;
-    }
-
-    /**
-     * Shows the simplified settings UI if the device configuration if the
-     * device configuration dictates that a simplified, single-pane UI should be
-     * shown.
-     */
-    private void setupSimplePreferencesScreen() {
-
-        // In the simplified UI, fragments are not used at all and we instead
-        // use the older PreferenceActivity APIs.
-
-        // Add 'notifications' preferences, and a corresponding header.
-        addPreferencesFromResource(R.xml.pref_accounts);
-
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
-        // their values. When their values change, their summaries are updated
-        // to reflect the new value, per the Android Design guidelines.
-//        bindPreferenceSummaryToValue(findPreference("example_text"));
-//        bindPreferenceSummaryToValue(findPreference("example_list"));
-//        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-//        bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        if (this.onIsMultiPane()) {
-            loadHeadersFromResource(R.xml.pref_headers, target);
-        }
     }
 
     /**
@@ -160,22 +233,4 @@ public class SettingsActivity extends PreferenceActivity {
         );
     }
 
-    /**
-     * This fragment shows data and sync preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class AccountsPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_accounts);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-//            bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-        }
-    }
 }
