@@ -1,36 +1,19 @@
 package com.tikalk.tikalhub;
 
-import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.tikalk.tikalhub.R;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import com.facebook.model.GraphUser;
+import com.tikalk.tikalhub.ui.ConfirmDialog;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -95,9 +78,14 @@ public class SettingsActivity extends PreferenceActivity {
 
     private void toggleFBLogin() {
 
-        Session session = Session.getActiveSession();
+        final Session session = Session.getActiveSession();
         if (session.isOpened()) {
-            session.closeAndClearTokenInformation();
+            ConfirmDialog.show(this, getString(R.string.pref_diconnect_account_confirm_message), new Runnable() {
+                @Override
+                public void run() {
+                    session.closeAndClearTokenInformation();
+                }
+            }, "fb_logout");
         } else {
             Session.openActiveSession(this, true, statusCallback);
         }
@@ -113,9 +101,15 @@ public class SettingsActivity extends PreferenceActivity {
     private void updateFBLoginPreference(Session session) {
 
         if (session.isOpened()) {
-            fbLoginPref.setSummary("is logged in");
+            fbLoginPref.setSummary(String.format(getString(R.string.pref_connected_as_format), ""));
+            Request.newMeRequest(session, new Request.GraphUserCallback() {
+                @Override
+                public void onCompleted(GraphUser user, Response response) {
+                    fbLoginPref.setSummary(String.format(getString(R.string.pref_connected_as_format), user.getName()));
+                }
+            }).executeAsync();
         } else {
-            fbLoginPref.setSummary("not logged in");
+            fbLoginPref.setSummary(getString(R.string.pref_press_to_connect));
         }
     }
 
