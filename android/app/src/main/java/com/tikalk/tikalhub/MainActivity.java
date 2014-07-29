@@ -2,9 +2,12 @@ package com.tikalk.tikalhub;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.facebook.Request;
@@ -12,6 +15,8 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.tikalk.tikalhub.model.FeedItem;
 import com.tikalk.tikalhub.ui.UpdatesListAdapter;
 
@@ -33,10 +38,22 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Create global configuration and initialize ImageLoader with this configuration
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .build();
+        ImageLoader.getInstance().init(config);
+
+
         listAdapter = new UpdatesListAdapter(this);
 
-        listView = (ListView)findViewById(R.id.list_view);
+        listView = (ListView) findViewById(R.id.list_view);
         listView.setAdapter(listAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MainActivity.this.onItemClick(view, (FeedItem) listAdapter.getItem(i));
+            }
+        });
 
         Session session = Session.openActiveSession(this, false, new Session.StatusCallback() {
             @Override
@@ -44,6 +61,14 @@ public class MainActivity extends Activity {
                 onSessionStateChange(session, state, exception);
             }
         });
+    }
+
+    private void onItemClick(View view, FeedItem feedItem) {
+        String link = feedItem.getLink();
+        if(link != null && !link.isEmpty()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+            startActivity(intent);
+        }
     }
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {

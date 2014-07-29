@@ -5,14 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.tikalk.tikalhub.MainActivity;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.tikalk.tikalhub.R;
 import com.tikalk.tikalhub.model.FeedItem;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -61,10 +61,19 @@ public class UpdatesListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
 
+        if(view == null)
         view = inflater.inflate(R.layout.updates_feed_item, null);
         FeedItem feedItem = list.get(i);
 
         ((TextView)view.findViewById(R.id.message)).setText(feedItem.getMessage());
+
+        ImageView imageView = (ImageView)view.findViewById(R.id.image);
+        if(feedItem.getImageUrl() != null && !feedItem.getImageUrl().isEmpty()) {
+            imageView.setVisibility(View.VISIBLE);
+            ImageLoader.getInstance().displayImage(feedItem.getImageUrl(), imageView);
+        } else {
+            imageView.setVisibility(View.GONE);
+        }
 
         return view;
 
