@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -35,6 +36,15 @@ public class MainActivity extends Activity {
                 MainActivity.this.onItemClick(view, (FeedItem) listAdapter.getItem(i));
             }
         });
+
+        // Create a progress bar to display while the list loads
+        View progressBar = getLayoutInflater().inflate(R.layout.updates_progress, null);
+        listView.setEmptyView(progressBar);
+
+        // Must add the progress bar to the root of the layout
+        ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
+        root.addView(progressBar);
+
 
         listAdapter.load(false);
     }
