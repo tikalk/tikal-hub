@@ -3,7 +3,6 @@ package com.tikalk.tikalhub.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +18,7 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.tikalk.tikalhub.R;
 import com.tikalk.tikalhub.model.FeedItem;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,10 +41,13 @@ public class UpdatesListAdapter extends BaseAdapter {
     private final int density;
     private final int maxImageWidth;
     private final Point initialImageSize;
+    private final DateFormat dateFormat;
 
     public UpdatesListAdapter(Context context) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
+
+        this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
 
         this.density = context.getResources().getDisplayMetrics().densityDpi;
         this.maxImageWidth = (300 * density)/160; // 300dp
@@ -83,23 +86,24 @@ public class UpdatesListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
 
-        if(view == null)
-        view = inflater.inflate(R.layout.updates_feed_item, null);
+        if (view == null)
+            view = inflater.inflate(R.layout.updates_feed_item, null);
         final FeedItem feedItem = list.get(i);
 
-        ((TextView)view.findViewById(R.id.message)).setText(feedItem.getMessage());
+        ((TextView) view.findViewById(R.id.message)).setText(feedItem.getMessage());
+        ((TextView) view.findViewById(R.id.date)).setText(dateFormat.format(feedItem.getDate()));
 
-        final ImageView imageView = (ImageView)view.findViewById(R.id.image);
-        if(feedItem.getImageUrl() != null && !feedItem.getImageUrl().isEmpty()) {
+        final ImageView imageView = (ImageView) view.findViewById(R.id.image);
+        if (feedItem.getImageUrl() != null && !feedItem.getImageUrl().isEmpty()) {
             imageView.setVisibility(View.VISIBLE);
             Point imageSize = feedItem.getImageSize();
 
-            if(imageSize == null) {
+            if (imageSize == null) {
                 imageSize = initialImageSize;
             }
             setImageSize(imageView, imageSize);
 
-            ImageLoader.getInstance().displayImage(feedItem.getImageUrl(), imageView, displayImageOptions, new ImageLoadingListener(){
+            ImageLoader.getInstance().displayImage(feedItem.getImageUrl(), imageView, displayImageOptions, new ImageLoadingListener() {
 
                 @Override
                 public void onLoadingStarted(String s, View view) {

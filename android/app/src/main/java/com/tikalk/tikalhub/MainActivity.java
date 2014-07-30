@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
 
         if (session.isOpened()) {
             // load data from FB
-            Request.newGraphPathRequest(session, "TikalKnowledge/feed", new Request.Callback() {
+            Request.newGraphPathRequest(session, "225585444263260/feed", new Request.Callback() {
                 @Override
                 public void onCompleted(Response response) {
 
