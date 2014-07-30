@@ -12,8 +12,10 @@
         android:id="@+id/message" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="130dp"
+        android:layout_height="100dp"
+        android:scaleType="fitCenter"
+        android:background="@drawable/image_placeholder"
         android:layout_margin="5pt"
         android:id="@+id/image" />
 </LinearLayout>

@@ -1,5 +1,7 @@
 package com.tikalk.tikalhub.model;
 
+import android.graphics.Point;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,6 +15,7 @@ public class FeedItem {
     private String message;
     private String link;
     private String imageUrl;
+    private Point imageSize;
 
     public FeedItem(long id, Date date) {
         this.id = id;
@@ -68,5 +71,13 @@ public class FeedItem {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setImageSize(Point imageSize) {
+        this.imageSize = imageSize;
+    }
+
+    public Point getImageSize() {
+        return imageSize;
     }
 }
