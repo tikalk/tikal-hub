@@ -10,20 +10,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.Session;
-import com.facebook.SessionState;
-import com.facebook.model.GraphObject;
 import com.tikalk.tikalhub.model.FeedItem;
 import com.tikalk.tikalhub.ui.UpdatesListAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends Activity {
@@ -48,12 +36,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        Session session = Session.openActiveSession(this, false, new Session.StatusCallback() {
-            @Override
-            public void call(Session session, SessionState state, Exception exception) {
-                onSessionStateChange(session, state, exception);
-            }
-        });
+        listAdapter.load(false);
     }
 
     private void onItemClick(View view, FeedItem feedItem) {
@@ -62,40 +45,6 @@ public class MainActivity extends Activity {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
             startActivity(intent);
         }
-    }
-
-    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-
-        if (session.isOpened()) {
-            // load data from FB
-            Request.newGraphPathRequest(session, "225585444263260/feed", new Request.Callback() {
-                @Override
-                public void onCompleted(Response response) {
-
-                    List<FeedItem> feedItems = new ArrayList<FeedItem>();
-                    GraphObject object = response.getGraphObject();
-                    try {
-
-                        JSONArray jsonList = (JSONArray) object.getProperty("data");
-
-                        for (int i = 0; i < jsonList.length(); i++) {
-                            JSONObject jsonItem = (JSONObject) jsonList.get(i);
-                            FeedItem feedItem = FeedItem.createFromFacebookJsonResponce(jsonItem);
-                            feedItems.add(feedItem);
-                        }
-
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-                    catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-
-                    listAdapter.addItems(feedItems);
-                }
-            }).executeAsync();
-        }
-
     }
 
     @Override
@@ -111,10 +60,15 @@ public class MainActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_refresh:
+                listAdapter.load(true);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 }

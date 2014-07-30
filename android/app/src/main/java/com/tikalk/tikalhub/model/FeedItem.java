@@ -32,7 +32,7 @@ public class FeedItem {
 
     static final SimpleDateFormat fbDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-    public static FeedItem createFromFacebookJsonResponce(JSONObject jsonItem) throws JSONException, ParseException {
+    public static FeedItem createFromFacebookJsonResponse(JSONObject jsonItem) throws JSONException, ParseException {
 
         Date date = fbDateFormatter.parse(jsonItem.getString("created_time"));
 

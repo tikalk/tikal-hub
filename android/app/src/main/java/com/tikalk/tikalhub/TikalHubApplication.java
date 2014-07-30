@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.tikalk.tikalhub.model.FeedAggregator;
 
 public class TikalHubApplication extends Application {
 
@@ -15,6 +16,8 @@ public class TikalHubApplication extends Application {
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .build();
         ImageLoader.getInstance().init(config);
+
+        FeedAggregator.init(this);
 
     }
 }

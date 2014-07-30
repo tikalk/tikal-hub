@@ -16,7 +16,9 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.tikalk.tikalhub.R;
+import com.tikalk.tikalhub.model.FeedAggregator;
 import com.tikalk.tikalhub.model.FeedItem;
+import com.tikalk.tikalhub.model.FetchItemsCallback;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -55,7 +57,7 @@ public class UpdatesListAdapter extends BaseAdapter {
 
     }
 
-    public void addItems(List<FeedItem> items) {
+    private void addItems(List<FeedItem> items) {
         list.addAll(items);
 
         Collections.sort(list, new Comparator<FeedItem>() {
@@ -151,5 +153,18 @@ public class UpdatesListAdapter extends BaseAdapter {
             layout.height = point.y;
             imageView.setLayoutParams(layout);
         }
+    }
+
+    public void load(boolean refresh) {
+        if(refresh)
+            list.clear();
+
+        FeedAggregator.getInstance().getItems(new FetchItemsCallback() {
+            @Override
+            public void onItemsLoaded(List<FeedItem> feedItems) {
+                addItems(feedItems);
+            }
+        }, refresh);
+
     }
 }
