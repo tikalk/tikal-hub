@@ -44,6 +44,7 @@ public class UpdatesListAdapter extends BaseAdapter {
     private final int maxImageWidth;
     private final Point initialImageSize;
     private final DateFormat dateFormat;
+    private Object loadContext;
 
     public UpdatesListAdapter(Context context) {
         this.context = context;
@@ -52,8 +53,8 @@ public class UpdatesListAdapter extends BaseAdapter {
         this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
 
         this.density = context.getResources().getDisplayMetrics().densityDpi;
-        this.maxImageWidth = (300 * density)/160; // 300dp
-        this.initialImageSize = new Point( (130 * density)/160, (100 * density)/160 ); // 130pt x 100pt
+        this.maxImageWidth = (300 * density) / 160; // 300dp
+        this.initialImageSize = new Point((130 * density) / 160, (100 * density) / 160); // 130pt x 100pt
 
     }
 
@@ -148,7 +149,7 @@ public class UpdatesListAdapter extends BaseAdapter {
     private static void setImageSize(ImageView imageView, Point point) {
         android.view.ViewGroup.LayoutParams layout = imageView.getLayoutParams();
 
-        if(layout.width != point.x || layout.height != point.y) {
+        if (layout.width != point.x || layout.height != point.y) {
             layout.width = point.x;
             layout.height = point.y;
             imageView.setLayoutParams(layout);
@@ -156,13 +157,17 @@ public class UpdatesListAdapter extends BaseAdapter {
     }
 
     public void load(boolean refresh) {
-        if(refresh)
-            list.clear();
+        list.clear();
+        notifyDataSetChanged();
+
+        final Object context = this.loadContext = new Object();
 
         FeedAggregator.getInstance().getItems(new FetchItemsCallback() {
             @Override
             public void onItemsLoaded(List<FeedItem> feedItems) {
-                addItems(feedItems);
+                if (loadContext.equals(context)) {
+                    addItems(feedItems);
+                }
             }
         }, refresh);
 

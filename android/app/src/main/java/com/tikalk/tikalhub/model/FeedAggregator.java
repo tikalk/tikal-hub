@@ -7,7 +7,7 @@ import java.util.List;
 
 public class FeedAggregator {
 
-    private ArrayList<FeedItem> loadedItems;
+    private ArrayList<FeedItem> cachedItems;
     private final List<FeedSource> sources = new ArrayList<FeedSource>();
 
     private static FeedAggregator instance;
@@ -27,22 +27,23 @@ public class FeedAggregator {
 
     public void getItems(final FetchItemsCallback callback, boolean refresh) {
 
-        if(loadedItems == null || refresh) {
-            loadedItems = new ArrayList<FeedItem>();
+        if(cachedItems == null || refresh) {
+            final ArrayList items = new ArrayList<FeedItem>();
 
             for(FeedSource source: sources) {
                 source.fetchItems(new FetchItemsCallback() {
                     @Override
                     public void onItemsLoaded(List<FeedItem> feedItems) {
-                        loadedItems.addAll(feedItems);
+                        items.addAll(feedItems);
                         callback.onItemsLoaded(feedItems);
                     }
                 });
             }
 
-            // do load sources
+            this.cachedItems = items;
+
         } else {
-            callback.onItemsLoaded(loadedItems);
+            callback.onItemsLoaded(cachedItems);
         }
     }
 }
