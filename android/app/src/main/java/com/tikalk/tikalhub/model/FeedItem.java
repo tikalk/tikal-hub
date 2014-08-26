@@ -30,25 +30,6 @@ public class FeedItem {
         return id;
     }
 
-    static final SimpleDateFormat fbDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
-    public static FeedItem createFromFacebookJsonResponse(JSONObject jsonItem) throws JSONException, ParseException {
-
-        Date date = fbDateFormatter.parse(jsonItem.getString("created_time"));
-
-        long id = date.getTime(); // TODO resolve unique id
-
-        FeedItem feedItem = new FeedItem(id, date);
-        String message = jsonItem.optString("message");
-        if(message == null || message.isEmpty())
-            message = jsonItem.optString("story");
-        feedItem.setMessage(message);
-        feedItem.setLink(jsonItem.optString("link"));
-        feedItem.setImageUrl(jsonItem.optString("picture"));
-
-        return  feedItem;
-    }
-
     public String getMessage() {
         return message;
     }

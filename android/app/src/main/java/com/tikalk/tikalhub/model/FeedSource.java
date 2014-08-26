@@ -1,5 +1,11 @@
 package com.tikalk.tikalhub.model;
 
+import java.util.List;
+
 public interface FeedSource {
-    void fetchItems(FetchItemsCallback callback);
+    List<FeedRawItem> fetchItems();
+
+    String getSourceType();
+
+    String getSourceId();
 }

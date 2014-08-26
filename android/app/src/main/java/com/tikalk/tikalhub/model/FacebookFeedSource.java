@@ -11,13 +11,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FacebookFeedSource implements FeedSource {
 
     private Context context;
     private String graphPath;
+
+    static final SimpleDateFormat fbDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     public FacebookFeedSource(Context context, String graphPath) {
         this.context = context;
@@ -26,11 +30,23 @@ public class FacebookFeedSource implements FeedSource {
     }
 
     @Override
-    public void fetchItems(final FetchItemsCallback callback) {
+    public String getSourceType() {
+        return "facebook";
+    }
+
+    @Override
+    public String getSourceId() {
+        return graphPath;
+    }
+
+    @Override
+    public List<FeedRawItem> fetchItems() {
 
         Session session = Session.getActiveSession();
         if(session == null)
             session = Session.openActiveSessionFromCache(context);
+
+        final List<FeedRawItem> feedItems = new ArrayList<FeedRawItem>();
 
         if (session != null && session.isOpened()) {
             // load data from FB
@@ -42,7 +58,6 @@ public class FacebookFeedSource implements FeedSource {
                         return;
                     }
 
-                    List<FeedItem> feedItems = new ArrayList<FeedItem>();
                     GraphObject object = response.getGraphObject();
                     try {
 
@@ -50,8 +65,11 @@ public class FacebookFeedSource implements FeedSource {
 
                         for (int i = 0; i < jsonList.length(); i++) {
                             JSONObject jsonItem = (JSONObject) jsonList.get(i);
-                            FeedItem feedItem = FeedItem.createFromFacebookJsonResponse(jsonItem);
-                            feedItems.add(feedItem);
+                            String rawData = jsonItem.toString();
+                            String entryId = jsonItem.getString("id");
+                            Date createdTime = fbDateFormatter.parse(jsonItem.getString("created_time"));
+                            Date updatedTime = fbDateFormatter.parse(jsonItem.getString("updated_time"));
+                            feedItems.add(new FeedRawItem(getSourceType(), getSourceId(), entryId, createdTime, updatedTime, rawData));
                         }
 
                     } catch (JSONException e) {
@@ -59,12 +77,29 @@ public class FacebookFeedSource implements FeedSource {
                     } catch (Throwable e) {
                         e.printStackTrace();
                     }
-
-                    callback.onItemsLoaded(feedItems);
                 }
-            }).executeAsync();
+            }).executeAndWait();
         }
 
+        return feedItems;
+    }
+
+    public static FeedItem createFromRawItem(FeedRawItem rawItem) throws JSONException {
+
+        JSONObject jsonItem = new JSONObject(rawItem.getRawData());
+        Date date = rawItem.getCreatedTime();
+
+        long id = date.getTime(); // TODO resolve unique id
+
+        FeedItem feedItem = new FeedItem(id, date);
+        String message = jsonItem.optString("message");
+        if(message == null || message.isEmpty())
+            message = jsonItem.optString("story");
+        feedItem.setMessage(message);
+        feedItem.setLink(jsonItem.optString("link"));
+        feedItem.setImageUrl(jsonItem.optString("picture"));
+
+        return  feedItem;
     }
 
 }

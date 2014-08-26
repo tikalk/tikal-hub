@@ -3,6 +3,7 @@ package com.tikalk.tikalhub.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,6 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.tikalk.tikalhub.R;
 import com.tikalk.tikalhub.model.FeedAggregator;
 import com.tikalk.tikalhub.model.FeedItem;
-import com.tikalk.tikalhub.model.FetchItemsCallback;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -156,20 +156,29 @@ public class UpdatesListAdapter extends BaseAdapter {
         }
     }
 
-    public void load(boolean refresh) {
+    public void load(final boolean refresh) {
         list.clear();
         notifyDataSetChanged();
 
-        final Object context = this.loadContext = new Object();
+        final Object ctx = this.loadContext = new Object();
 
-        FeedAggregator.getInstance().getItems(new FetchItemsCallback() {
+        new Thread(new Runnable() {
             @Override
-            public void onItemsLoaded(List<FeedItem> feedItems) {
-                if (loadContext.equals(context)) {
-                    addItems(feedItems);
+            public void run() {
+                final List<FeedItem> feedItems = FeedAggregator.getInstance().getItems(refresh);
+
+                if (loadContext.equals(ctx)) {
+
+                    new Handler(context.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            addItems(feedItems);
+                        }
+                    });
                 }
+
             }
-        }, refresh);
+        }).start();
 
     }
 }
