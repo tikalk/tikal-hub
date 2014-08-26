@@ -6,8 +6,11 @@
 
         <!-- This preference simply launches an intent when selected. Use this UI sparingly, per
              design guidelines. -->
-        <Preference android:title="@string/pref_title_facebook_login" android:key="facebook_login">
-        </Preference>
+        <Preference android:title="@string/pref_title_facebook_login" android:key="facebook_login" android:icon="@drawable/facebook_logo"/>
+
+        <Preference android:title="@string/pref_title_yammer_login" android:key="yammer_login" android:icon="@drawable/yammer_logo"/>
+
+        <Preference android:title="@string/pref_title_tikalSite_login" android:key="tikal_login" android:icon="@drawable/tikal_logo"/>
 
     </PreferenceCategory>
 

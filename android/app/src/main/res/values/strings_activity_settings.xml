@@ -4,6 +4,8 @@
     <!-- Strings related to Settings -->
 
     <string name="pref_title_facebook_login">Facebook connect</string>
+    <string name="pref_title_yammer_login">Yammer connect</string>
+    <string name="pref_title_tikalSite_login">Tikal site connect</string>
     <string name="pref_header_accounts">Accounts</string>
     <string name="pref_press_to_connect">Press to connect</string>
     <string name="pref_connected_as_format">Connected as: %s</string>

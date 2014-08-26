@@ -1,6 +1,7 @@
 package com.tikalk.tikalhub;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -29,9 +30,12 @@ import com.tikalk.tikalhub.ui.ConfirmDialog;
 public class SettingsActivity extends PreferenceActivity {
 
     UiLifecycleHelper uiHelper;
+    UiLifecycleHelper uiHelperYammer;
     private boolean isResumed;
     private Preference fbLoginPref;
-    private Session.StatusCallback statusCallback;
+    private Preference yammerLoginPref;
+    private Session.StatusCallback FbStatusCallback;
+    private Session.StatusCallback YammerStatusCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,27 +57,61 @@ public class SettingsActivity extends PreferenceActivity {
 //
 //        }
 
-        statusCallback = new Session.StatusCallback() {
+        FbStatusCallback = new Session.StatusCallback() {
             @Override
-            public void call(Session session,
-                             SessionState state, Exception exception) {
-                onSessionStateChange(session, state, exception);
+            public void call(Session session, SessionState state, Exception exception) {
+                onFBSessionStateChange(session, state, exception);
             }
         };
-        uiHelper = new UiLifecycleHelper(this, statusCallback);
+        YammerStatusCallback = new Session.StatusCallback() {
+            @Override
+            public void call(Session session, SessionState state, Exception exception) {
+                onYammerSessionStateChange(session, state, exception);
+            }
+        };
 
+        /* Shmulik TODO - Need to change the uiHelper to get a generic StatusCallback*/
+        uiHelper = new UiLifecycleHelper(this, FbStatusCallback);
         uiHelper.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.pref_accounts);
+
         fbLoginPref = findPreference("facebook_login");
         fbLoginPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                toggleFBLogin();
+                                                toggleFBLogin();
+                                                return true;
+                                            }
+        });
+
+        yammerLoginPref = findPreference("yammer_login");
+        yammerLoginPref.setSummary(getString(R.string.pref_press_to_connect));
+        yammerLoginPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                toggleYammerLogin();
                 return true;
             }
         });
+    }
 
+    private void toggleYammerLogin() {
+
+        Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.yammer.com/tikalk.com#access_token=dvc1bLr6ACyb5jM6DVeaeg"));
+        startActivity(myIntent);
+
+      /*  final Session session = Session.getActiveSession();
+        if (session.isOpened()) {
+            ConfirmDialog.show(this, getString(R.string.pref_diconnect_account_confirm_message), new Runnable() {
+                @Override
+                public void run() {
+                    session.closeAndClearTokenInformation();
+                }
+            }, "yammer_logout");
+        } else {
+            Session.openActiveSession(this, true, YammerStatusCallback);
+        }*/
     }
 
     private void toggleFBLogin() {
@@ -87,15 +125,40 @@ public class SettingsActivity extends PreferenceActivity {
                 }
             }, "fb_logout");
         } else {
-            Session.openActiveSession(this, true, statusCallback);
+            Session.openActiveSession(this, true, FbStatusCallback);
         }
     }
 
-    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+    private void onFBSessionStateChange(Session session, SessionState state, Exception exception) {
         if(!isResumed)
             return;
 
         updateFBLoginPreference(session);
+    }
+
+    private void onYammerSessionStateChange(Session session, SessionState state, Exception exception) {
+        if(!isResumed)
+            return;
+
+        updateYammerLoginPreference(session);
+    }
+
+    private void updateYammerLoginPreference(Session session) {
+
+        if (session.isOpened()) {
+            yammerLoginPref.setSummary(String.format(getString(R.string.pref_connected_as_format), ""));
+            Request.newMeRequest(session, new Request.GraphUserCallback() {
+                @Override
+                public void onCompleted(GraphUser user, Response response) {
+                    yammerLoginPref.setSummary(String.format(getString(R.string.pref_connected_as_format), user.getName()));
+                }
+            }).executeAsync();
+        } else {
+            //Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.yammer.com/dialog/oauth?client_id=irYuVwXkWmqNCOCa4G5tsw&redirect_uri=https://www.yammer.com/tikalk.com/&response_type=token"));
+            //Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.yammer.com/oauth2/access_token.json?client_id=irYuVwXkWmqNCOCa4G5tsw&client_secret=zFkuw9poY3yUlMyRi7m5Il2itPO0rGXG3SGUcRfS5zI&code=dvc1bLr6ACyb5jM6DVeaeg"));
+              Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.yammer.com/tikalk.com#access_token=dvc1bLr6ACyb5jM6DVeaeg"));
+              startActivity(myIntent);
+        }
     }
 
     private void updateFBLoginPreference(Session session) {
@@ -109,6 +172,10 @@ public class SettingsActivity extends PreferenceActivity {
                 }
             }).executeAsync();
         } else {
+            //Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.yammer.com/dialog/oauth?client_id=irYuVwXkWmqNCOCa4G5tsw&redirect_uri=https://www.yammer.com/tikalk.com/&response_type=token"));
+            //Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.yammer.com/oauth2/access_token.json?client_id=irYuVwXkWmqNCOCa4G5tsw&client_secret=zFkuw9poY3yUlMyRi7m5Il2itPO0rGXG3SGUcRfS5zI&code=dvc1bLr6ACyb5jM6DVeaeg"));
+         //   Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.yammer.com/tikalk.com#access_token=dvc1bLr6ACyb5jM6DVeaeg"));
+         //   startActivity(myIntent);
             fbLoginPref.setSummary(getString(R.string.pref_press_to_connect));
         }
     }
