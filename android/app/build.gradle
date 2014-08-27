@@ -5,7 +5,7 @@ android {
         release {
             keyAlias 'tikalk'
             keyPassword 'tikalk'
-            storeFile file('C:/work/tikal-hub/android/tikalk.jks')
+            storeFile file('tikalk.jks')
             storePassword 'tikalk'
         }
     }
