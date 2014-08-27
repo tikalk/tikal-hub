@@ -16,6 +16,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.tikalk.tikalhub.MainActivity;
 import com.tikalk.tikalhub.R;
 import com.tikalk.tikalhub.model.FeedAggregator;
 import com.tikalk.tikalhub.model.FeedItem;
@@ -28,7 +29,8 @@ import java.util.List;
 
 public class UpdatesListAdapter extends BaseAdapter {
 
-    private final Context context;
+    private final MainActivity activity;
+    private FeedAggregator feedAggregator;
     private final LayoutInflater inflater;
     private final DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder()
             .resetViewBeforeLoading(true)
@@ -46,13 +48,14 @@ public class UpdatesListAdapter extends BaseAdapter {
     private final DateFormat dateFormat;
     private Object loadContext;
 
-    public UpdatesListAdapter(Context context) {
-        this.context = context;
-        this.inflater = LayoutInflater.from(context);
+    public UpdatesListAdapter(MainActivity activity, FeedAggregator feedAggregator) {
+        this.activity = activity;
+        this.feedAggregator = feedAggregator;
+        this.inflater = LayoutInflater.from(activity);
 
-        this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
+        this.dateFormat = android.text.format.DateFormat.getDateFormat(activity);
 
-        this.density = context.getResources().getDisplayMetrics().densityDpi;
+        this.density = activity.getResources().getDisplayMetrics().densityDpi;
         this.maxImageWidth = (300 * density) / 160; // 300dp
         this.initialImageSize = new Point((130 * density) / 160, (100 * density) / 160); // 130pt x 100pt
 
@@ -175,18 +178,27 @@ public class UpdatesListAdapter extends BaseAdapter {
 
     public void load(final boolean refresh) {
 
+        if(refresh) {
+            activity.setLoading(true);
+        }
+
         final Object ctx = this.loadContext = new Object();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final List<FeedItem> feedItems = FeedAggregator.getInstance().getItems(refresh);
+
+                final List<FeedItem> feedItems = feedAggregator.getItems(refresh);
 
                 if (loadContext.equals(ctx)) {
 
-                    new Handler(context.getMainLooper()).post(new Runnable() {
+                    new Handler(activity.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
+
+                            if(refresh) {
+                                activity.setLoading(false);
+                            }
                             addItems(feedItems);
                         }
                     });

@@ -11,11 +11,15 @@ import java.util.List;
 
 public class FeedAggregator {
 
-    private ArrayList<FeedItem> cachedItems;
+    public interface Listener {
+        void onUpdated();
+    }
+
     private final List<FeedSource> sources = new ArrayList<FeedSource>();
 
     private static FeedAggregator instance;
     private TikalHubDbHelper dbHelper;
+    private final List<Listener> listeners = new ArrayList<Listener>();
 
     public static void init(Context context) {
         instance = new FeedAggregator(context);
@@ -34,7 +38,7 @@ public class FeedAggregator {
     public List<FeedItem> getItems(boolean refresh) {
 
         if(refresh) {
-            updateFeeds();
+            updateFeedsInternal();
         }
 
         List<FeedRawItem> rawItems = dbHelper.getFeedItems();
@@ -56,6 +60,11 @@ public class FeedAggregator {
     }
 
     public void updateFeeds() {
+        updateFeedsInternal();
+        notifyListeners();
+    }
+
+    private void updateFeedsInternal() {
 
         for(FeedSource source: sources) {
             List<FeedRawItem> items = source.fetchItems();
@@ -63,4 +72,20 @@ public class FeedAggregator {
         }
 
     }
+
+    private void notifyListeners() {
+        for(Listener l: listeners) {
+            l.onUpdated();
+        }
+    }
+
+    public void addListener(Listener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(Listener listener) {
+        listeners.remove(listener);
+    }
+
+
 }

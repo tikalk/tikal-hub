@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
+import com.tikalk.tikalhub.model.FeedAggregator;
 import com.tikalk.tikalhub.model.FeedItem;
 import com.tikalk.tikalhub.ui.UpdatesListAdapter;
 
@@ -20,14 +22,18 @@ public class MainActivity extends Activity {
 
     private ListView listView;
     private UpdatesListAdapter listAdapter;
+    private ProgressBar progressBar;
+    private FeedAggregator feedAggregator;
+    private FeedAggregator.Listener feedAggregatorListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        feedAggregator = FeedAggregator.getInstance();
 
-        listAdapter = new UpdatesListAdapter(this);
+        listAdapter = new UpdatesListAdapter(this, feedAggregator);
 
         listView = (ListView) findViewById(R.id.list_view);
         listView.setAdapter(listAdapter);
@@ -53,12 +59,38 @@ public class MainActivity extends Activity {
         ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
         root.addView(emptyView);
 
+        progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+
 
         listAdapter.load(false);
+
+        feedAggregatorListener = new FeedAggregator.Listener() {
+            @Override
+            public void onUpdated() {
+                listAdapter.load(false);
+            }
+        };
+
+        feedAggregator.addListener(feedAggregatorListener);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        feedAggregator.removeListener(feedAggregatorListener);
     }
 
     private void refreshList() {
         listAdapter.load(true);
+    }
+
+    public void setLoading(boolean loading) {
+        if(loading) {
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void onItemClick(View view, FeedItem feedItem) {
