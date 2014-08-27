@@ -29,7 +29,7 @@ public class TikalHubApplication extends Application {
             @Override
             public void run() {
                 Log.d(LogTag, "Update feed");
-                FeedAggregator.getInstance().fetchNewItems();
+                FeedAggregator.getInstance().updateFeeds();
             }
         }, 1000, 600000);
     }

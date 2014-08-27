@@ -89,7 +89,7 @@ public class FacebookFeedSource implements FeedSource {
         JSONObject jsonItem = new JSONObject(rawItem.getRawData());
         Date date = rawItem.getCreatedTime();
 
-        long id = date.getTime(); // TODO resolve unique id
+        long id = date.getTime() | (1L * (rawItem.getSourceType().hashCode() ^ rawItem.getSourceId().hashCode() ^ rawItem.getEntryId().hashCode()) << 32);
 
         FeedItem feedItem = new FeedItem(id, date);
         String message = jsonItem.optString("message");

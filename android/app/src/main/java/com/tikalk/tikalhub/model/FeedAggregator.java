@@ -34,7 +34,7 @@ public class FeedAggregator {
     public List<FeedItem> getItems(boolean refresh) {
 
         if(refresh) {
-            fetchNewItems();
+            updateFeeds();
         }
 
         List<FeedRawItem> rawItems = dbHelper.getFeedItems();
@@ -55,11 +55,11 @@ public class FeedAggregator {
 
     }
 
-    public void fetchNewItems() {
+    public void updateFeeds() {
 
         for(FeedSource source: sources) {
             List<FeedRawItem> items = source.fetchItems();
-            dbHelper.addNewFeedItems(items);
+            dbHelper.saveFeedItems(items);
         }
 
     }

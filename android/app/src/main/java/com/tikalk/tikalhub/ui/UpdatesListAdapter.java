@@ -59,7 +59,24 @@ public class UpdatesListAdapter extends BaseAdapter {
     }
 
     private void addItems(List<FeedItem> items) {
-        list.addAll(items);
+
+        // filter only new items and add to the list
+        // TODO: this flow is not optimized
+        List<FeedItem> newItems = new ArrayList<FeedItem>();
+
+        for(FeedItem item: items) {
+            int i = list.indexOf(item);
+
+            if(i == -1) {
+                newItems.add(item);
+            } else {
+                list.set(i, item); // update item
+            }
+        }
+
+        if(newItems.size()> 0 ) {
+            list.addAll(newItems);
+        }
 
         Collections.sort(list, new Comparator<FeedItem>() {
             @Override
@@ -157,8 +174,6 @@ public class UpdatesListAdapter extends BaseAdapter {
     }
 
     public void load(final boolean refresh) {
-        list.clear();
-        notifyDataSetChanged();
 
         final Object ctx = this.loadContext = new Object();
 
