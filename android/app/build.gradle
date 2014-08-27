@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'tikalk'
+            keyPassword 'tikalk'
+            storeFile file('C:/work/tikal-hub/android/tikalk.jks')
+            storePassword 'tikalk'
+        }
+    }
     compileSdkVersion 20
     buildToolsVersion '20.0.0'
     defaultConfig {
@@ -14,6 +22,7 @@ android {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     productFlavors {
