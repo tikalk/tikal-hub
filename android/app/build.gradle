@@ -15,8 +15,8 @@ android {
         applicationId 'com.tikalk.tikalhub'
         minSdkVersion 15
         targetSdkVersion 20
-        versionCode 1
-        versionName '1.0'
+        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 1
+        versionName '1.0' + (System.getenv("BUILD_DISPLAY_NAME") ?: '')
     }
     buildTypes {
         release {
