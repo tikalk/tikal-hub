@@ -62,7 +62,7 @@ public class TikalHubDbHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public void saveFeedItems(List<FeedRawItem> items) {
+    public synchronized void saveFeedItems(List<FeedRawItem> items) {
 
         SQLiteDatabase db = getWritableDatabase();
 

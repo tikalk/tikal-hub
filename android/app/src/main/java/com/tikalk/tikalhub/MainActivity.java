@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.tikalk.tikalhub.model.FeedItem;
@@ -38,15 +39,26 @@ public class MainActivity extends Activity {
         });
 
         // Create a progress bar to display while the list loads
-        View progressBar = getLayoutInflater().inflate(R.layout.updates_progress, null);
-        listView.setEmptyView(progressBar);
+        View emptyView = getLayoutInflater().inflate(R.layout.updates_empty, null);
+        Button button = (Button)emptyView.findViewById(R.id.button_refresh);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refreshList();
+            }
+        });
+        listView.setEmptyView(emptyView);
 
         // Must add the progress bar to the root of the layout
         ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-        root.addView(progressBar);
+        root.addView(emptyView);
 
 
         listAdapter.load(false);
+    }
+
+    private void refreshList() {
+        listAdapter.load(true);
     }
 
     private void onItemClick(View view, FeedItem feedItem) {
@@ -75,7 +87,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_refresh:
-                listAdapter.load(true);
+                refreshList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
