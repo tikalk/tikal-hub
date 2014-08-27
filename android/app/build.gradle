@@ -5,7 +5,7 @@ android {
         release {
             keyAlias 'tikalk'
             keyPassword 'tikalk'
-            storeFile file('tikalk.jks')
+            storeFile file('../tikalk.jks')
             storePassword 'tikalk'
         }
     }
