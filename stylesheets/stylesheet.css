@@ -152,13 +152,16 @@ a.button span {
   height: 23px;
 }
 
-#download-zip span {
+#download-apk  {
+  background: transparent url(../images/apk-icon.png) 12px 50% no-repeat;
+}
+#download-zip  {
   background: transparent url(../images/zip-icon.png) 12px 50% no-repeat;
 }
-#download-tar-gz span {
+#download-tar-gz  {
   background: transparent url(../images/tar-gz-icon.png) 12px 50% no-repeat;
 }
-#view-on-github span {
+#view-on-github  {
   background: transparent url(../images/octocat-icon.png) 12px 50% no-repeat;
 }
 #view-on-github {
