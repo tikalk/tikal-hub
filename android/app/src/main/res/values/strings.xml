@@ -6,5 +6,7 @@
 
     <string name="facebook_app_id">530563930404317</string>
     <string name="updates_empty_text">There is no items to show</string>
+    <string name="drawer_open">open drawer</string>
+    <string name="drawer_close">close drawer</string>
 
 </resources>
