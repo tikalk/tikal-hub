@@ -4,8 +4,6 @@
       <root url="jar://$PROJECT_DIR$/app/libs/universal-image-loader-1.9.2.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="jar://$USER_HOME$/.ideaLibSources/universal-image-loader-1.9.2-sources.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

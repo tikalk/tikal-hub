@@ -44,4 +44,5 @@ public class FeedRawItem {
     public String getSourceId() {
         return sourceId;
     }
+
 }
