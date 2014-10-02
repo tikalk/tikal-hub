@@ -116,18 +116,20 @@ public class MainActivity extends Activity {
         final ListView drawerList = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
-        drawerList.setAdapter(new ArrayAdapter<NavigationMenuItem>(this,
+        final ArrayAdapter<NavigationMenuItem> adapter = new ArrayAdapter<NavigationMenuItem>(this,
                 R.layout.drawer_list_item, new NavigationMenuItem[]{
-                new NavigationMenuItem("menu_news_feed", "News Feed"),
-                new NavigationMenuItem("menu_settings", "Settings")
-        }));
+                new NavigationMenuItem(getString(R.string.menu_news_feed_id), getString(R.string.menu_news_feed)),
+                new NavigationMenuItem(getString(R.string.menu_settings_id), getString(R.string.menu_settings))
+        });
+        drawerList.setAdapter(adapter);
         // Set the list's click listener
         drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-                if (onDrawerItemSelected(position)) {
+                NavigationMenuItem item = adapter.getItem(position);
+                if (onDrawerItemSelected(item)) {
                     // Highlight the selected item, update the title, and close the drawer
                     drawerList.setItemChecked(position, true);
                 }
@@ -161,8 +163,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    private boolean onDrawerItemSelected(int position) {
-        return false;
+    private boolean onDrawerItemSelected(NavigationMenuItem item) {
+
+        if (item.getId() == getString(R.string.menu_settings_id)) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -239,9 +247,6 @@ public class MainActivity extends Activity {
 
         int id = item.getItemId();
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
             case R.id.action_refresh:
                 refreshList();
                 return true;

@@ -2,15 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity" >
     <item android:id="@+id/action_refresh"
-        android:title="@string/action_settings"
+        android:title="@string/action_refresh"
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
         android:icon="@drawable/ic_menu_refresh"
-        />
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="ifRoom"
-        android:icon="@android:drawable/ic_menu_preferences"
         />
 </menu>
