@@ -18,8 +18,11 @@ import java.util.List;
 
 public class TikalHubDbHelper extends SQLiteOpenHelper {
 
+    public static String LogTag = "TikalHubDbHelper";
+
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "TikalHub.db";
+
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
@@ -32,15 +35,15 @@ public class TikalHubDbHelper extends SQLiteOpenHelper {
                     FeedEntry.COLUMN_CREATED_TIME + INTEGER_TYPE + COMMA_SEP +
                     FeedEntry.COLUMN_UPDATED_TIME + INTEGER_TYPE + COMMA_SEP +
                     FeedEntry.COLUMN_ENTRY_RAW_DATA + TEXT_TYPE +
-                    " );";
+            " );";
     private static final String SQL_CREATE_ENTRIES_ITEM_KEY = "CREATE UNIQUE INDEX ItemKey ON " + FeedEntry.TABLE_NAME + "(" +
-            FeedEntry.COLUMN_NAME_SOURCE_TYPE + COMMA_SEP +
-            FeedEntry.COLUMN_NAME_SOURCE_ID + COMMA_SEP +
-            FeedEntry.COLUMN_ENTRY_ID +
+                    FeedEntry.COLUMN_NAME_SOURCE_TYPE + COMMA_SEP +
+                    FeedEntry.COLUMN_NAME_SOURCE_ID + COMMA_SEP +
+                    FeedEntry.COLUMN_ENTRY_ID +
             ");";
+
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
-    public static String LogTag = "TikalHubDbHelper";
 
     public TikalHubDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -63,7 +66,7 @@ public class TikalHubDbHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getWritableDatabase();
 
-        for (FeedRawItem item : items) {
+        for(FeedRawItem item: items) {
 
             ContentValues values = new ContentValues();
             values.put(FeedEntry.COLUMN_NAME_SOURCE_TYPE, item.getSourceType());
@@ -96,19 +99,19 @@ public class TikalHubDbHelper extends SQLiteOpenHelper {
         }, null, null, null, null, FeedEntry.COLUMN_CREATED_TIME + " DESC", "100");
 
 
-        if (c != null && c.moveToFirst()) {
+        if(c != null && c.moveToFirst()) {
 
-            do {
+            do{
                 String sourceType = c.getString(c.getColumnIndex(FeedEntry.COLUMN_NAME_SOURCE_TYPE));
                 String sourceId = c.getString(c.getColumnIndex(FeedEntry.COLUMN_NAME_SOURCE_ID));
                 String entryId = c.getString(c.getColumnIndex(FeedEntry.COLUMN_ENTRY_ID));
-                Date createdTime = new Date(c.getLong(c.getColumnIndex(FeedEntry.COLUMN_CREATED_TIME)));
-                Date updatedTime = new Date(c.getLong(c.getColumnIndex(FeedEntry.COLUMN_UPDATED_TIME)));
+                Date createdTime =new Date( c.getLong(c.getColumnIndex(FeedEntry.COLUMN_CREATED_TIME)));
+                Date updatedTime =new Date( c.getLong(c.getColumnIndex(FeedEntry.COLUMN_UPDATED_TIME)));
                 String rawData = c.getString(c.getColumnIndex(FeedEntry.COLUMN_ENTRY_RAW_DATA));
 
                 rawItems.add(new FeedRawItem(sourceType, sourceId, entryId, createdTime, updatedTime, rawData));
 
-            } while (c.moveToNext());
+            }while (c.moveToNext());
         }
 
         return rawItems;
