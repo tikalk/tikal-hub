@@ -29,7 +29,7 @@ import java.util.List;
 
 public class UpdatesListAdapter extends BaseAdapter {
 
-    private final MainActivity activity;
+    private final NewsFeedFragment fragment;
     private FeedAggregator feedAggregator;
     private final LayoutInflater inflater;
     private final DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder()
@@ -48,14 +48,14 @@ public class UpdatesListAdapter extends BaseAdapter {
     private final DateFormat dateFormat;
     private Object loadContext;
 
-    public UpdatesListAdapter(MainActivity activity, FeedAggregator feedAggregator) {
-        this.activity = activity;
+    public UpdatesListAdapter(NewsFeedFragment fragment, LayoutInflater inflater, FeedAggregator feedAggregator) {
+        this.fragment = fragment;
         this.feedAggregator = feedAggregator;
-        this.inflater = LayoutInflater.from(activity);
+        this.inflater = inflater;
 
-        this.dateFormat = android.text.format.DateFormat.getDateFormat(activity);
+        this.dateFormat = android.text.format.DateFormat.getDateFormat(fragment.getActivity());
 
-        this.density = activity.getResources().getDisplayMetrics().densityDpi;
+        this.density = fragment.getResources().getDisplayMetrics().densityDpi;
         this.maxImageWidth = (300 * density) / 160; // 300dp
         this.initialImageSize = new Point((130 * density) / 160, (100 * density) / 160); // 130pt x 100pt
 
@@ -179,7 +179,7 @@ public class UpdatesListAdapter extends BaseAdapter {
     public void load(final boolean refresh) {
 
         if(refresh) {
-            activity.setLoading(true);
+            fragment.setLoading(true);
         }
 
         final Object ctx = this.loadContext = new Object();
@@ -192,12 +192,12 @@ public class UpdatesListAdapter extends BaseAdapter {
 
                 if (loadContext.equals(ctx)) {
 
-                    new Handler(activity.getMainLooper()).post(new Runnable() {
+                    new Handler(fragment.getActivity().getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
 
                             if(refresh) {
-                                activity.setLoading(false);
+                                fragment.setLoading(false);
                             }
                             addItems(feedItems);
                         }
