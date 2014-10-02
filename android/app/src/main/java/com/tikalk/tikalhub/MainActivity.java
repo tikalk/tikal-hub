@@ -91,6 +91,9 @@ public class MainActivity extends Activity {
             }
         });
 
+        // select news feed by default
+        drawerList.setItemChecked(0, true);
+
     }
 
     class NavigationMenuItem {
