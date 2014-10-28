@@ -7,9 +7,8 @@
     <string name="updates_empty_text">There is no items to show</string>
     <string name="drawer_open">open drawer</string>
     <string name="drawer_close">close drawer</string>
-    <string name="menu_settings_id">menu_settings</string>
-    <string name="menu_news_feed_id">menu_news_feed</string>
     <string name="menu_news_feed">News Feed</string>
+    <string name="menu_contacts">People</string>
     <string name="action_refresh">Refresh</string>
     <string name="title_activity_my">MyActivity</string>
     <string name="hello_world">Hello world!</string>

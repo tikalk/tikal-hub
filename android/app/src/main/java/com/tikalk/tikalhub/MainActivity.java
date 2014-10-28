@@ -1,6 +1,7 @@
 package com.tikalk.tikalhub;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.tikalk.tikalhub.ui.ContactsFragment;
 import com.tikalk.tikalhub.ui.NewsFeedFragment;
 
 
@@ -21,6 +23,7 @@ public class MainActivity extends Activity {
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
+    private int currentTabId;
 
 
     @Override
@@ -28,13 +31,56 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.content, new NewsFeedFragment())
-                    .commit();
-        }
-        
         initDrawer();
+
+        int tabId = R.string.menu_news_feed;
+
+        if(savedInstanceState != null) {
+            currentTabId = savedInstanceState.getInt("selectedTab", tabId);
+        }
+
+        showContent(tabId);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("selectedTab", currentTabId);
+
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    private void showContent(int tabId) {
+
+        if(currentTabId == tabId)
+            return;
+
+        Fragment fragment;
+        switch (tabId){
+            case R.string.menu_news_feed:
+                fragment = new NewsFeedFragment();
+                break;
+            case R.string.menu_contacts:
+                fragment= new ContactsFragment();
+                break;
+            default:
+                return;
+        }
+
+        currentTabId = tabId;
+        getFragmentManager().beginTransaction()
+                .replace(R.id.content, fragment)
+                .commit();
+
+        // Highlight the selected item, update the title, and close the drawer
+        // TODO
+
     }
 
     private void initDrawer() {
@@ -71,8 +117,9 @@ public class MainActivity extends Activity {
         // Set the adapter for the list view
         final ArrayAdapter<NavigationMenuItem> adapter = new ArrayAdapter<NavigationMenuItem>(this,
                 R.layout.drawer_list_item, new NavigationMenuItem[]{
-                new NavigationMenuItem(getString(R.string.menu_news_feed_id), getString(R.string.menu_news_feed)),
-                new NavigationMenuItem(getString(R.string.menu_settings_id), getString(R.string.menu_settings))
+                new NavigationMenuItem(R.string.menu_news_feed, getString(R.string.menu_news_feed)),
+                new NavigationMenuItem(R.string.menu_contacts, getString(R.string.menu_contacts)),
+                new NavigationMenuItem(R.string.menu_settings, getString(R.string.menu_settings))
         });
         drawerList.setAdapter(adapter);
         // Set the list's click listener
@@ -82,30 +129,26 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
                 NavigationMenuItem item = adapter.getItem(position);
-                if (onDrawerItemSelected(item)) {
-                    // Highlight the selected item, update the title, and close the drawer
-                    drawerList.setItemChecked(position, true);
-                }
+                onDrawerItemSelected(item);
+                // prevent selection by clicking
+                drawerList.setItemChecked(position, false);
 
                 drawerLayout.closeDrawer(drawerList);
             }
         });
 
-        // select news feed by default
-        drawerList.setItemChecked(0, true);
-
     }
 
     class NavigationMenuItem {
-        private String id;
+        private int id;
         private String title;
 
-        NavigationMenuItem(String id, String title) {
+        NavigationMenuItem(int id, String title) {
             this.id = id;
             this.title = title;
         }
 
-        public String getId() {
+        public int getId() {
             return id;
         }
 
@@ -119,14 +162,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    private boolean onDrawerItemSelected(NavigationMenuItem item) {
+    private void onDrawerItemSelected(NavigationMenuItem item) {
 
-        if (item.getId() == getString(R.string.menu_settings_id)) {
+        if (item.getId() == R.string.menu_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
-            return false;
+            return;
         }
 
-        return true;
+        showContent(item.getId());
     }
 
     @Override
