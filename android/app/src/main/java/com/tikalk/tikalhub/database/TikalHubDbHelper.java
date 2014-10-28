@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.tikalk.tikalhub.database.TikalHubDbContract.FeedEntry;
+import com.tikalk.tikalhub.database.TikalHubDbContract.Contacts;
 import com.tikalk.tikalhub.model.FeedRawItem;
 
 import java.util.ArrayList;
@@ -45,6 +46,17 @@ public class TikalHubDbHelper extends SQLiteOpenHelper {
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
 
+    private static final String SQL_CREATE_CONTACTS =
+            "CREATE TABLE " + Contacts.TABLE_NAME + " (" +
+                    Contacts._ID + " INTEGER PRIMARY KEY," +
+                    Contacts.COLUMN_FIRST_NAME + TEXT_TYPE + COMMA_SEP +
+                    Contacts.COLUMN_LAST_NAME + TEXT_TYPE + COMMA_SEP +
+                    Contacts.COLUMN_RAW_DATA + TEXT_TYPE +
+                    " );";
+
+    private static final String SQL_DELETE_CONTACTS =
+            "DROP TABLE IF EXISTS " + Contacts.TABLE_NAME;
+
     public TikalHubDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -53,11 +65,13 @@ public class TikalHubDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(SQL_CREATE_ENTRIES);
         sqLiteDatabase.execSQL(SQL_CREATE_ENTRIES_ITEM_KEY);
+        sqLiteDatabase.execSQL(SQL_CREATE_CONTACTS);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
         sqLiteDatabase.execSQL(SQL_DELETE_ENTRIES);
+        sqLiteDatabase.execSQL(SQL_DELETE_CONTACTS);
 
         onCreate(sqLiteDatabase);
     }

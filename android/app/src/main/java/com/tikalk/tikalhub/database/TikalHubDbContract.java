@@ -15,4 +15,12 @@ public final class TikalHubDbContract {
         public static final String COLUMN_ENTRY_RAW_DATA = "raw_data";
 
     }
+
+    public static abstract class Contacts implements BaseColumns {
+
+        public static final String TABLE_NAME = "contacts";
+        public static final String COLUMN_FIRST_NAME = "first_name";
+        public static final String COLUMN_LAST_NAME = "last_name";
+        public static final String COLUMN_RAW_DATA = "raw_data";
+    }
 }

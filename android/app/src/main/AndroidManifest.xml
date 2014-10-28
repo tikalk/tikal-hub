@@ -33,6 +33,10 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="@string/app_name" />
 
+        <provider
+            android:authorities="com.tikalk.tikalhub.provider"
+            android:name=".TikalHubContentProvider"></provider>
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
