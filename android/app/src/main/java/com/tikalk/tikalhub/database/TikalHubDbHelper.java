@@ -66,6 +66,15 @@ public class TikalHubDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(SQL_CREATE_ENTRIES);
         sqLiteDatabase.execSQL(SQL_CREATE_ENTRIES_ITEM_KEY);
         sqLiteDatabase.execSQL(SQL_CREATE_CONTACTS);
+
+        sqLiteDatabase.execSQL("INSERT INTO  " + Contacts.TABLE_NAME + " (" +
+                Contacts.COLUMN_FIRST_NAME + COMMA_SEP +
+                Contacts.COLUMN_LAST_NAME +
+                " ) VALUES ('Igor', 'Zelmanovich')");
+        sqLiteDatabase.execSQL("INSERT INTO  " + Contacts.TABLE_NAME + " (" +
+                Contacts.COLUMN_FIRST_NAME + COMMA_SEP +
+                Contacts.COLUMN_LAST_NAME +
+                " ) VALUES ('Joe', 'Smith')");
     }
 
     @Override

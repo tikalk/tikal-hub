@@ -17,6 +17,8 @@ public class TikalHubContentProvider extends ContentProvider {
     private static final int CONTACTS = 0;
     private static final int CONTACTS_ID = 1;
 
+    public static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
+    public static final Uri CONTENT_CONTACTS_URI = Uri.withAppendedPath(AUTHORITY_URI, Contacts.TABLE_NAME);
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
